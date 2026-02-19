@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 
 // Colors from tech_rules.md and design.md
@@ -26,21 +26,26 @@ const ReportingForm = () => {
   };
 
   const submitReport = async () => {
-    // Optimized payload using short keys as per tech_rules.md
+    // 1. ADD THIS VALIDATION CHECK HERE
+    if (selectedSymptoms.length === 0) {
+      Alert.alert('Error', 'Please select at least one symptom.');
+      return; // This stops the function from continuing
+    }
+
+    // 2. The rest of your code stays below
     const reportData = {
       s_ids: selectedSymptoms,
       ts: firestore.FieldValue.serverTimestamp(),
     };
 
     try {
-      // Offline-first: Firestore handles persistence automatically
       await firestore().collection('reports').add(reportData);
-      alert('Report Saved Offline/Online!');
+      Alert.alert('Success', 'Report Saved Offline/Online!');
+      setSelectedSymptoms([]); // Optional: Clear the form after success
     } catch (error) {
       console.error(error);
     }
   };
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.grid}>

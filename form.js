@@ -26,24 +26,29 @@ const ReportingForm = () => {
   };
 
   const submitReport = async () => {
-    // 1. ADD THIS VALIDATION CHECK HERE
+    // 1. Validation to prevent empty reports
     if (selectedSymptoms.length === 0) {
-      Alert.alert('Error', 'Please select at least one symptom.');
-      return; // This stops the function from continuing
+      Alert.alert('No Symptoms Selected', 'Please select at least one symptom before submitting.');
+      return;
     }
 
-    // 2. The rest of your code stays below
     const reportData = {
       s_ids: selectedSymptoms,
       ts: firestore.FieldValue.serverTimestamp(),
     };
 
     try {
+      // Offline-first: Firestore handles persistence automatically
       await firestore().collection('reports').add(reportData);
+      
+      // 2. Fixed mobile-compatible Alert
       Alert.alert('Success', 'Report Saved Offline/Online!');
-      setSelectedSymptoms([]); // Optional: Clear the form after success
+      
+      // 3. Reset form after success
+      setSelectedSymptoms([]); 
     } catch (error) {
       console.error(error);
+      Alert.alert('Error', 'Failed to save report. Please try again.');
     }
   };
   return (
